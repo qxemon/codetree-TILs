@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class Main {
@@ -120,63 +118,37 @@ public class Main {
         p = Math.min(p, 20);
         authority[c] = p;
 
-//        int cur = parent[c];
-//        int idx = 1;
-//        if (!mute[c]) {
-//            if (p > before) {
-//                idx = before;
-//                transfer[c][p]++;
-//                while (cur != 0) {
-//                    if (p >= idx) chatRoom[cur]++;
-//                    if (p > idx) transfer[cur][p - idx]++;
-//
-//                    if (mute[cur]) break;
-//                    cur = parent[cur];
-//                    idx++;
-//                }
-//
-//            } else if (p < before) {
-//                idx = p;
-//                transfer[c][before]--;
-//                while (cur != 0) {
-//                    if(before >= idx) chatRoom[cur]--;
-//                    if(before > idx) transfer[cur][before - idx]--;
-//
-//                    if (mute[cur]) break;
-//                    cur = parent[cur];
-//                    idx++;
-//                }
-//            }
-//
-//        }
-
-        transfer[c][before]--;
-        if (!mute[c]) {
-            int cur = parent[c];
-            int num = 1;
-            // 상위 채팅으로 이동하며 nx와 val 값을 갱신합니다.
-            while (cur != 0) {
-                if (before >= num) chatRoom[cur]--;
-                if (before > num) transfer[cur][before - num]--;
-                if (mute[cur]) break;
-                cur = parent[cur];
-                num++;
+        // 기존 power 다 지우기 지우기
+        transfer[c][before]--; 
+        if(!mute[c]){ // 알람 off
+            int idx = 1;
+            int cur = parent[c]; // 부모 노드 번호
+            while(cur != 0){ // 루트 노드 까지
+                if(before >= idx) chatRoom[cur]--;
+                if(before > idx) transfer[cur][before-idx]--;
+                
+                if(mute[cur]) break;
+                cur = parent[cur]; // 부모 노드 갱신 (더 높은걸로)
+                idx++; // 인덱스 늘리기
             }
         }
-
+        
+        // 이제 새로운 power 까지 다시 채우기
         transfer[c][p]++;
-        if (!mute[c]) {
+        if(!mute[c]){
+            int idx = 1;
             int cur = parent[c];
-            int num = 1;
-            // 상위 채팅으로 이동하며 nx와 val 값을 갱신합니다.
-            while (cur != 0) {
-                if (p >= num) chatRoom[cur]++;
-                if (p > num) transfer[cur][p - num]++;
-                if (mute[cur]) break;
+            while(cur != 0){
+                if(p >= idx) chatRoom[cur]++;
+                if(p > idx) transfer[cur][p-idx]++;
+                
+                if(mute[cur]) break;
                 cur = parent[cur];
-                num++;
+                idx++;
             }
         }
+
+
 
 
     }
