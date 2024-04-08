@@ -120,34 +120,62 @@ public class Main {
         p = Math.min(p, 20);
         authority[c] = p;
 
-        int cur = parent[c];
-        int idx = 1;
+//        int cur = parent[c];
+//        int idx = 1;
+//        if (!mute[c]) {
+//            if (p > before) {
+//                idx = before;
+//                transfer[c][p]++;
+//                while (cur != 0) {
+//                    if (p >= idx) chatRoom[cur]++;
+//                    if (p > idx) transfer[cur][p - idx]++;
+//
+//                    if (mute[cur]) break;
+//                    cur = parent[cur];
+//                    idx++;
+//                }
+//
+//            } else if (p < before) {
+//                idx = p;
+//                transfer[c][before]--;
+//                while (cur != 0) {
+//                    if(before >= idx) chatRoom[cur]--;
+//                    if(before > idx) transfer[cur][before - idx]--;
+//
+//                    if (mute[cur]) break;
+//                    cur = parent[cur];
+//                    idx++;
+//                }
+//            }
+//
+//        }
+
+        transfer[c][before]--;
         if (!mute[c]) {
-            if (p > before) {
-                idx = before;
-                transfer[c][p]++;
-                while (cur != 0) {
-                    if (p >= idx) chatRoom[cur]++;
-                    if (p > idx) transfer[cur][p - idx]++;
-
-                    if (mute[cur]) break;
-                    cur = parent[cur];
-                    idx++;
-                }
-
-            } else if (p < before) {
-                idx = p;
-                transfer[c][before]--;
-                while (cur != 0) {
-                    if(before >= idx) chatRoom[cur]--;
-                    if(before > idx) transfer[cur][before - idx]--;
-                    
-                    if (mute[cur]) break;
-                    cur = parent[cur];
-                    idx++;
-                }
+            int cur = parent[c];
+            int num = 1;
+            // 상위 채팅으로 이동하며 nx와 val 값을 갱신합니다.
+            while (cur != 0) {
+                if (before >= num) chatRoom[cur]--;
+                if (before > num) transfer[cur][before - num]--;
+                if (mute[cur]) break;
+                cur = parent[cur];
+                num++;
             }
+        }
 
+        transfer[c][p]++;
+        if (!mute[c]) {
+            int cur = parent[c];
+            int num = 1;
+            // 상위 채팅으로 이동하며 nx와 val 값을 갱신합니다.
+            while (cur != 0) {
+                if (p >= num) chatRoom[cur]++;
+                if (p > num) transfer[cur][p - num]++;
+                if (mute[cur]) break;
+                cur = parent[cur];
+                num++;
+            }
         }
 
 
