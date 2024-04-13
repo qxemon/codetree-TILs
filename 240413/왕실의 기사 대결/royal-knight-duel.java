@@ -72,6 +72,8 @@ public class Main {
 		for (int i = 1; i <= n; i++) {
 			knightList.get(i).dmg = 0;
 			knightList.get(i).isMoved = false;
+			knightList.get(i).ni = knightList.get(i).r;
+			knightList.get(i).nj = knightList.get(i).c;
 			
 		}
 		
@@ -82,8 +84,8 @@ public class Main {
 		while(!queue.isEmpty()) {
 			int now = queue.poll();
 			
-			knightList.get(now).ni = knightList.get(now).r + di[dir];
-			knightList.get(now).nj = knightList.get(now).c + dj[dir];
+			knightList.get(now).ni += di[dir];
+			knightList.get(now).nj += dj[dir];
 			//경계 체크
 			if(knightList.get(now).ni < 1 || knightList.get(now).ni + knightList.get(now).h -1 > l || knightList.get(now).nj < 1 || knightList.get(now).nj + knightList.get(now).w - 1 > l) {
 				return false;
