@@ -18,10 +18,10 @@ public class Main {
         dp[2] = 7;
 
         for(int i= 3; i<=n; i++){
-            dp[i] = ((((dp[i-1] * 3)% 1000000007 + dp[i-2])% 1000000007) - dp[i-3]) % 1000000007;
+            dp[i] = ((dp[i-1]% 1000000007 * 3)+ dp[i-2]- dp[i-3])%1000000007;
         }
 
-        System.out.println(dp[n]);
+        System.out.println(dp[n] % 1000000007);
 
 
     }
