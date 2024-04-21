@@ -17,11 +17,13 @@ public class Main {
 
         dp[2] = 7;
 
-        for(int i= 3; i<=n; i++){
-
-
-
-            dp[i] = ((dp[i-1]% 1000000007 * 3) % 1000000007 + dp[i-2]- dp[i-3])%1000000007;
+        // 점화식에 따라 dp값 채우기
+        // dp[i] = dp[i - 1] * 2 + dp[i - 2] * 3 +
+        //         (dp[i - 3] + dp[i - 4] + dp[i - 5] + ... dp[0]) * 2
+        for(int i = 2; i <= n; i++) {
+            dp[i] = (dp[i - 1] * 2 + dp[i - 2] * 3) % 1000000007;
+            for(int j = i - 3; j >= 0; j--)
+                dp[i] = (dp[i] + dp[j] * 2) % 1000000007;
         }
 
         System.out.println(dp[n]);
