@@ -7,7 +7,7 @@ public class Main {
 
         int n = Integer.parseInt(br.readLine());
 
-        int[] dp = new int[n+1];
+        long[] dp = new long[n+1];
         dp[0] = 1;
         dp[1] = 2;
         if(n == 1) {
@@ -18,7 +18,7 @@ public class Main {
         dp[2] = 7;
 
         for(int i= 3; i<=n; i++){
-            dp[i] = ((dp[i-1] * 3) + dp[i-2] - dp[i-3]) % 1000000007;
+            dp[i] = ((dp[i-1] * 3) % 1000000007 + dp[i-2] - dp[i-3]) % 1000000007;
 
         }
 
