@@ -91,7 +91,7 @@ public class Main {
 
     static boolean checkReset() {
         for (int i = 0; i < C; i++) {
-            if (map[1][i] > 0) {
+            if (map[2][i] > 0) {
                 return true;
             }
         }
@@ -191,6 +191,7 @@ public class Main {
             }
 
         }
+//        System.out.println(result-2);
         return result - 2;
     }
 }
