@@ -131,7 +131,7 @@ public class Main {
     }
 
     static boolean canLeft() {
-        if (point[0] + 1 < R + 2 && point[1] - 2 > 0) {
+        if (point[0] + 1 < R + 2 && point[1] - 2 >= 0) {
             if (map[point[0] - 1][point[1] - 1] == 0 && map[point[0]][point[1] - 2] == 0 && map[point[0] + 1][point[1] - 2] == 0 && map[point[0] + 1][point[1] - 1] == 0 && map[point[0] + 2][point[1] - 1] == 0) {
                 point[0]++;
                 point[1]--;
