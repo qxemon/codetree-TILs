@@ -44,125 +44,59 @@ public class Main {
 		}
 		// end of input
 
-		for (int kk = 0; kk < K; kk++) {
-			int ans = 0;
+		for (int k = 0; k < K; k++) {
 
+			int ans = 0;
 			max_map = new int[5][5];
-			// 1. 각 중심점에 관해 9번의 회전 실험 및 초기 탐색을 진행할 것
-			int rote_cnt= 100;
-			for (int i = 1; i < 4; i++) {
-				for (int j = 1; j < 4; j++) {
-					
-					copyArr(map, map_copy);
-					
-					// 중심점을 구함
-					int d = 0;
-					
-					for (int k = 0; k < 3; k++) {
-						for (int l = 0; l < 3; l++) {
-							original[k][l] = map[i + dr[d]][j + dc[d]];
-							d++;
+
+			// 최대 이익이 되는 회전 좌표 찾고 회전, 초기 점수 구하기
+			for (int cnt = 1; cnt <= 3; cnt++) {
+				for (int sc = 1; sc < 4; sc++) {
+					for (int sr = 1; sr < 4; sr++) {
+
+						int d = 0;
+						for (int m = 0; m < 3; m++) {
+							for (int n = 0; n < 3; n++) {
+								original[m][n] = map[sr + dr[d]][sc + dc[d]];
+								d++;
+							}
 						}
-					}
-					
-					
-					
-					// 1. 90도 회전
-					rotate(original, copy);
-					
-					// 1-1. 맵에 회전 유적 삽입
-					fill_rotatedArea(i, j, copy);
-//					print(map_copy);
-					
-					
-					// 1-2. 맵의 가치 계산
-					int cal = bfs(map_copy);
-					
-//					System.out.println(i+" "+ j +" " + cal);
-//					System.out.println();
-					if(cal > ans) {
-						rote_cnt = 1;
-						ans = cal;
-						copyArr(map_copy, max_map);
-					} else if (cal == ans && ans != 0) {
-						if(rote_cnt > 1) {
-							rote_cnt = 1;
-							ans = cal;
-							copyArr(map_copy,max_map);
+
+						map_copy = rotate(sr, sc, original, copy, cnt);
+
+						int score = bfs(map_copy);
+						if (ans < score) {
+							ans = score;
+							copyArr(map_copy, max_map);
 						}
+
 					}
-					
-					
-					
-					// 2. 180도 회전
-					copyArr(map, map_copy);
-					rotate180(original, copy);
-					fill_rotatedArea(i, j, copy);
-					cal = bfs(map_copy);
-					if(cal > ans) {
-						ans = cal;
-						copyArr(map_copy, max_map);
-					}else if (cal == ans && ans != 0) {
-						if(rote_cnt > 2) {
-							rote_cnt = 2;
-							ans = cal;
-							copyArr(map_copy,max_map);
-						}
-					}
-					
-					
-					
-					// 3. 270도 회전
-					copyArr(map, map_copy);
-					rotate270(original, copy);
-					fill_rotatedArea(i, j, copy);
-					cal = bfs(map_copy);
-					if(cal > ans) {
-						ans = cal;
-						copyArr(map_copy, max_map);
-					}
-					
 				}
 			}
-			
-			
-			//예외 회전 시 유적을 찾지 못함 -> 해당 회차 탐색 종료
-			if(isEmptyArr(max_map)) {
+
+			if (isEmptyArr(max_map)) {
 				break;
 			}
-			
-			
-			//갱신
+
 			copyArr(max_map, map);
-			
-			
-//			print(map);
-			// 2. 빈 유적을 채우고 연쇄작용 계산하기
-			while(true) {
+			while (true) {
 				fill();
-//				print(map);
-				int plusScore = bfs(map);
-//				print(map);
-				if(plusScore == 0) break;
-				ans += plusScore;
-				
-				
-			
+				int bonusScore = bfs(map);
+				if (bonusScore == 0)
+					break;
+				ans += bonusScore;
 			}
-			
-			System.out.print(ans+" ");
-			
+
+			System.out.print(ans + " ");
 		}
 
-		
-
 	}
-	
+
 	private static void fill() {
-		//열이작고 행이 큰 순서대로
-		for(int j=0; j < 5; j++) {
+		// 열이작고 행이 큰 순서대로
+		for (int j = 0; j < 5; j++) {
 			for (int i = 4; i >= 0; i--) {
-				if(map[i][j]==0 && !relics.isEmpty()) {
+				if (map[i][j] == 0 && !relics.isEmpty()) {
 					map[i][j] = relics.poll();
 				}
 			}
@@ -172,15 +106,14 @@ public class Main {
 	private static boolean isEmptyArr(int[][] a) {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a.length; j++) {
-				if(a[i][j] != 0) {
+				if (a[i][j] != 0) {
 					return false;
 				}
 			}
 		}
 		return true;
 	}
-	
-	
+
 	private static void fill_rotatedArea(int i, int j, int[][] copy) {
 		int m = 0;
 		for (int k = i - 1; k < i + 2; k++) {
@@ -260,7 +193,44 @@ public class Main {
 
 		System.out.println("============================");
 	}
-	
+
+	/**
+	 * 
+	 * @param i   중심점 행
+	 * @param j   중심점 열
+	 * @param a   기존 33배열
+	 * @param b   회전 33배열
+	 * @param cnt 몇도 돌리는지
+	 * @return
+	 */
+	public static int[][] rotate(int r, int c, int[][] a, int[][] b, int cnt) {
+		int[][] arr = new int[5][5];
+		// 복사
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+				arr[i][j] = map[i][j];
+			}
+		}
+		if (cnt == 1) {
+			rotate90(a, b);
+		} else if (cnt == 2) {
+			rotate180(a, b);
+		} else if (cnt == 3) {
+			rotate270(a, b);
+		}
+
+		int m = 0;
+		for (int k = r - 1; k < r + 2; k++) {
+			int n = 0;
+			for (int l = c - 1; l < c + 2; l++) {
+				arr[k][l] = b[m][n];
+				n++;
+			}
+			m++;
+		}
+
+		return arr;
+	}
 
 	private static void rotate270(int[][] a, int[][] b) {
 		for (int i = 0; i < b.length; i++) {
@@ -278,7 +248,7 @@ public class Main {
 		}
 	}
 
-	private static void rotate(int[][] a, int[][] b) {
+	private static void rotate90(int[][] a, int[][] b) {
 		for (int i = 0; i < b.length; i++) {
 			for (int j = 0; j < b[0].length; j++) {
 				b[i][j] = a[b.length - 1 - j][i];
