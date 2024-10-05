@@ -49,6 +49,7 @@ public class Main {
 
 			max_map = new int[5][5];
 			// 1. 각 중심점에 관해 9번의 회전 실험 및 초기 탐색을 진행할 것
+			int rote_cnt= 100;
 			for (int i = 1; i < 4; i++) {
 				for (int j = 1; j < 4; j++) {
 					
@@ -64,7 +65,6 @@ public class Main {
 						}
 					}
 					
-					int rote_cnt= 100;
 					
 					
 					// 1. 90도 회전
@@ -72,9 +72,14 @@ public class Main {
 					
 					// 1-1. 맵에 회전 유적 삽입
 					fill_rotatedArea(i, j, copy);
+//					print(map_copy);
+					
 					
 					// 1-2. 맵의 가치 계산
 					int cal = bfs(map_copy);
+					
+//					System.out.println(i+" "+ j +" " + cal);
+//					System.out.println();
 					if(cal > ans) {
 						rote_cnt = 1;
 						ans = cal;
@@ -86,6 +91,7 @@ public class Main {
 							copyArr(map_copy,max_map);
 						}
 					}
+					
 					
 					
 					// 2. 180도 회전
@@ -254,6 +260,7 @@ public class Main {
 
 		System.out.println("============================");
 	}
+	
 
 	private static void rotate270(int[][] a, int[][] b) {
 		for (int i = 0; i < b.length; i++) {
