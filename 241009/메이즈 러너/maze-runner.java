@@ -67,6 +67,7 @@ public class Main {
 //			System.out.println("====================");
 			// 참가자 이동
 			move();
+//			moveAllTraveler();
 			
 			
 			//게임 종료 판단
@@ -114,19 +115,9 @@ public class Main {
 			}
 			
 			// 1. 출구로 부터 최단 거리 방향 구하기
-			int minDist = Integer.MAX_VALUE;
-			int dir = 0;
-			for (int d = 0; d < 4; d++) {
-				int nr = cur.r + dr[d];
-				int nc = cur.c + dc[d];
-				int dist = Math.abs(nr - exit.r) + Math.abs(nc - exit.c);
-				if (dist < minDist) {
-					dir = d;
-					minDist = dist;
-				}
-			} // 방향을 구했다.
+			int dir = findDir(cur.r,cur.c); // 방향을 구했다.
 			
-//			System.out.println(s+"의 방향"+dir);
+			if(dir == -1) continue;
 			
 			int nr = cur.r + dr[dir];
 			int nc = cur.c + dc[dir];
@@ -134,13 +125,41 @@ public class Main {
 			// 갈 수 있는 길인지 검사
 			// 1. 범위 내인가? 2. 빈칸인가
 			if (inRange(nr, nc) && map[nr][nc] == 0) {
-//				System.out.println("이동했어요");
 				result++; // 이동거리 추가
 				user[s] = new Point(nr, nc);
+//				System.out.println("user"+s+"의 위치 " +user[s].r+" " +user[s].c);
 			}
-//			System.out.println("user"+s+"의 위치 " +user[s].r+" " +user[s].c);
+			
 		}
 	}
+	
+	public static int findDir(int r, int c) {
+		int dir = -1;
+		int minDist = distance(r,c);
+		
+		for(int d =0; d<4; d++) {
+			int nr = r + dr[d];
+			int nc = c + dc[d];
+			
+			if(!inRange(nr,nc) || map[nr][nc] > 0) continue;
+			
+			int dist = distance(nr,nc);
+			
+			if(minDist > dist) {
+				dir = d;
+				minDist = dist;
+			}
+		}
+		
+		
+		return dir;
+	}
+	
+	public static int distance(int r, int c) {
+		return Math.abs(r - exit.r) + Math.abs(c - exit.c);
+	}
+	
+	
 	
 	/**
 	 * 가장 작은 회전 사각형을 찾는 함수
@@ -148,8 +167,8 @@ public class Main {
 	public static void findSquare() {
 		
 		for(int n = 2; n<=N; n++) {
-			for(int r1 = 1; r1<=n; r1++) {
-				for(int c1 = 1; c1 <=n; c1++) {
+			for(int r1 = 1; r1<=N-n+1; r1++) {
+				for(int c1 = 1; c1 <=N-n+1; c1++) {
 					//최대 길이 열 측정
 					int r2 = r1 + n - 1;
 					int c2 = c1 + n - 1;
@@ -255,6 +274,57 @@ public class Main {
 	}
 	
 	
+	public static void moveAllTraveler() {
+        // m명의 모든 참가자들에 대해 이동을 진행합니다.
+        for(int i = 1; i <= M; i++) {
+            // 이미 출구에 있는 경우 스킵합니다.
+            if(user[i].c == exit.c && user[i].r == exit.r)
+                continue;
+            
+            // 행이 다른 경우 행을 이동시켜봅니다.
+            if(user[i].r != exit.r) {
+                int nx = user[i].r;
+                int ny = user[i].c;
+    
+                if(exit.r > nx) nx++;
+                else nx--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 행을 이동시키고 바로 다음 참가자로 넘어갑니다.
+                if(map[nx][ny] == 0) {
+                    user[i].r = nx;
+                    user[i].c = ny;
+                    result++;
+                    
+                    System.out.println("user"+i+"의 위치 " +user[i].r+" " +user[i].c);
+                    continue;
+                }
+            }
+    
+            // 열이 다른 경우 열을 이동시켜봅니다.
+            if(user[i].c != exit.c) {
+                int nx = user[i].r;
+                int ny = user[i].c;
+    
+                if(exit.c > ny) ny++;
+                else ny--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 열을 이동시킵니다.
+                if(map[nx][ny] == 0) {
+                    user[i].r = nx;
+                    user[i].c = ny;
+                    result++;
+                    
+                    System.out.println("user"+i+"의 위치 " +user[i].r+" " +user[i].c);
+                    continue;
+                }
+            }
+        
+            System.out.println("user"+i+"의 위치 " +user[i].r+" " +user[i].c);
+        }
+    }
+	
     
 
 	
@@ -264,7 +334,7 @@ public class Main {
 	// ================= 유틸들 ======================
 	
 	public static boolean inRange(int r, int c) {
-		return r >= 1 && r <= N && c >= 1 && r <= N;
+		return r >= 1 && r <= N && c >= 1 && c <= N;
 	}
 	
 
