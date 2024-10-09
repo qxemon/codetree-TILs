@@ -10,8 +10,11 @@ public class Main {
 	private static List<Point> basecamp;
 
 	private static int[][] map = new int[MAX_N + 1][MAX_N + 1];
-	private static boolean[][] active = new boolean[MAX_N + 1][MAX_N + 1]; // false 미할당, 이동가능 true: 할당, 이동불가
-
+	
+	private static boolean[][] visited; // 방문여부
+	private static int[][] rec; // bfs했을 시 위치 당 거리 측정 용
+	
+	
 	private static int N, M;
 
 	// 상좌우하
@@ -26,7 +29,9 @@ public class Main {
 		M = Integer.parseInt(st.nextToken());
 
 		map = new int[N + 1][N + 1];
-		active = new boolean[N + 1][N + 1];
+		
+		visited = new boolean[N+1][N+1];
+		rec = new int[N+1][N+1];
 
 		convenStores = new Point[M + 1];
 		customers = new Point[M + 1];
@@ -53,10 +58,13 @@ public class Main {
 			customers[i] = new Point(0, 0);
 		} // end of input
 
+
 		int ans = 1;
 
 		while (true) {
 			// 모든 고객이 편의점에 입장함 -> break;
+//			System.out.println(ans + "분 시뮬레이션");
+//			System.out.println("===================");
 			
 			boolean isFinish = true;
 			for (int m = 1; m <= M; m++) {
@@ -70,32 +78,36 @@ public class Main {
 				break;
 			}
 
+			// 1. 이동
 			for (int m = 1; m <= M; m++) {
+				// 아직 격자 밖
 				if (m > ans)
 					continue;
-
-				// 3. 베캠이동
-				if (customers[m].r == 0 && customers[m].c == 0) {
-					int assign = findBasecamp(m);
-					// 해당 베캠으로 이동
-					customers[m].r = basecamp.get(assign).r;
-					customers[m].c = basecamp.get(assign).c;
-					active[basecamp.get(assign).r][basecamp.get(assign).c] = true;
-					
-					continue;
-				}
-
+				// 이미 도착
 				if (convenStores[m].r == customers[m].r && convenStores[m].c == customers[m].c) {
 					continue;
 				}
 
+				// 3. 베캠이동
+				if (customers[m].r == 0 && customers[m].c == 0) {
+					//최단 거리 찾기
+					bfs(convenStores[m]);
+					
+					//베이스캠프 할당
+					findBasecamp(m);
+					continue;
+				}
+
+
 				// 1. 편의점이동
+				// bfs로 최단거리 측정 : visited를 통해 무한 루프 방지해야함
+				bfs(convenStores[m]);
 				move(m);
 				
 
 				// 2. 도착
 				if (convenStores[m].r == customers[m].r && convenStores[m].c == customers[m].c) {
-					active[convenStores[m].r][convenStores[m].c] = true;
+					map[convenStores[m].r][convenStores[m].c] = 2;
 				}
 
 			}
@@ -122,66 +134,81 @@ public class Main {
 		int custR = customers[n].r;
 		int custC = customers[n].c;
 
-		int convR = convenStores[n].r;
-		int convC = convenStores[n].c;
+		int minDist = Integer.MAX_VALUE;
+		int minR = -1, minC = -1;
+		
+		for (int d = 0; d < 4; d++) {
+			int nr = custR + dr[d];
+			int nc = custC + dc[d];
+			if(inRange(nr,nc) && visited[nr][nc] && minDist > rec[nr][nc]) {
+				minDist = rec[nr][nc];
+				minR = nr;
+				minC = nc;
+			}
+			
+		}
 
-		int dir = findDir(n);
-		int nr = custR + dr[dir];
-		int nc = custC + dc[dir];
-
-		customers[n].r = nr;
-		customers[n].c = nc;
+		customers[n].r = minR;
+		customers[n].c = minC;
 
 	}
+	
+	public static void bfs(Point p) {
+		// 초기화 (방문, bfs배열)
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <=N; j++) {
+				visited[i][j] = false;
+				rec[i][j] = 0;
+			}
+		}
+		
+		Queue<Point> queue = new ArrayDeque<>();
+		
+		queue.add(p);
+		visited[p.r][p.c] = true;
+		rec[p.r][p.c] = 0;
+		
+		while(!queue.isEmpty()) {
+			Point now = queue.poll();
+			for (int d = 0; d < 4; d++) {
+				int nr = now.r + dr[d];
+				int nc = now.c + dc[d];
+				
+				if(inRange(nr,nc) && !visited[nr][nc] && map[nr][nc] != 2) {
+					visited[nr][nc] = true;
+					rec[nr][nc] = rec[now.r][now.c]+1;
+					queue.add(new Point(nr,nc));
+				}
+			}
+		}
+	}
+	
+	
 
-	public static int findBasecamp(int num) {
+	public static void findBasecamp(int num) {
 		int conR = convenStores[num].r;
 		int conC = convenStores[num].c;
 
 		int minDist = Integer.MAX_VALUE;
-		int result = -1;
-		for (int i = 0; i < basecamp.size(); i++) {
-			int dist = distance(conR, conC, basecamp.get(i).r, basecamp.get(i).c);
-
-			// 거리가 짧고, 활성화가 안되어 있다면 -> 해당 베캠을 할당
-			// 왜 그냥 일련 탐색 해도 되는가? -> 우선순위가 행작고 열작은 순 -> 리스트가 행작고 열작은 순서대로 담겨있기 때문에
-			// 같은 거리가 나오더라도 이전 것을 선택하게됨
-			if (dist < minDist && !active[basecamp.get(i).r][basecamp.get(i).c]) {
-				result = i;
-				minDist = dist;
+		int baseR = -1;
+		int baseC = -1;
+		
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				if(visited[i][j] && map[i][j] == 1 && minDist > rec[i][j]) {
+					minDist = rec[i][j];
+					baseR = i;
+					baseC = j;
+				}
 			}
 		}
-
-		return result;
+		
+		customers[num].r = baseR;
+		customers[num].c = baseC;
+		
+		map[baseR][baseC] = 2;
 	}
 
-	public static int findDir(int n) {
-		int dir = -1;
-		
-		int custR = customers[n].r;
-		int custC = customers[n].c;
-
-		int convR = convenStores[n].r;
-		int convC = convenStores[n].c;
-		
-		int minDist = Integer.MAX_VALUE;
-
-		for (int d = 0; d < 4; d++) {
-			int nr = custR + dr[d];
-			int nc = custC + dc[d];
-
-			int dist = distance(nr, nc, convR, convC);
-
-			// 범위 안이고 이동 가능하며, 거리가 가까워야함
-			if (inRange(nr, nc) && !active[nr][nc] && dist < minDist) {
-				dir = d;
-				minDist = dist;
-			}
-
-		}
-
-		return dir;
-	}
 
 	public static int distance(int r1, int c1, int r2, int c2) {
 		return Math.abs(r2 - r1) + Math.abs(c2 - c1);
