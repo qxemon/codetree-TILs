@@ -81,14 +81,32 @@ public class Main {
 			// 1. 이동
 			for (int m = 1; m <= M; m++) {
 				// 아직 격자 밖
-				if (m > ans)
+				if (customers[m].r == 0 && customers[m].c == 0)
 					continue;
 				// 이미 도착
 				if (convenStores[m].r == customers[m].r && convenStores[m].c == customers[m].c) {
 					continue;
 				}
 
+				// 1. 편의점이동
+				// bfs로 최단거리 측정 : visited를 통해 무한 루프 방지해야함
+				bfs(convenStores[m]);
+				move(m);
+				
+
+			}
+			
+			for (int m = 1; m <= M; m++) {
+				// 2. 도착
+				if (convenStores[m].r == customers[m].r && convenStores[m].c == customers[m].c) {
+					map[convenStores[m].r][convenStores[m].c] = 2;
+				}
+			}
+
+			for (int m = 1; m <= M; m++) {
 				// 3. 베캠이동
+				if(m > ans) continue;
+				
 				if (customers[m].r == 0 && customers[m].c == 0) {
 					//최단 거리 찾기
 					bfs(convenStores[m]);
@@ -97,24 +115,13 @@ public class Main {
 					findBasecamp(m);
 					continue;
 				}
-
-
-				// 1. 편의점이동
-				// bfs로 최단거리 측정 : visited를 통해 무한 루프 방지해야함
-				bfs(convenStores[m]);
-				move(m);
-				
-
-				// 2. 도착
-				if (convenStores[m].r == customers[m].r && convenStores[m].c == customers[m].c) {
-					map[convenStores[m].r][convenStores[m].c] = 2;
-				}
-
 			}
-
+			
+			
 			ans++;
 		}
 
+		
 		
 		System.out.println(ans-1);
 
