@@ -50,10 +50,15 @@ public class Main {
 
 		} // end of input
 
+//		print();
+//		printPlayer();
+
 		
+//		System.out.println("-----------------------------------");
 		for (int k = 1; k <= K; k++) {
 			simulation();
-
+//			print();
+//			printPlayer();
 		}
 
 		for (int i = 1; i <= M; i++) {
@@ -79,6 +84,7 @@ public class Main {
 			p.r = nr;
 			p.c = nc;
 				
+			// ============================
 
 			// 2. 해당 칸에 플레이어 있는 지 확인
 			int who = someoneThere(nr, nc, i);
@@ -104,6 +110,7 @@ public class Main {
 		for (int j = 1; j <= M; j++) {
 			if (i != j && r == players[j].r && c == players[j].c) {
 				who = j;
+				break;
 			}
 		}
 
@@ -118,15 +125,19 @@ public class Main {
 
 		// a가 이긴 경우
 		if (winA) {
-			int score = (pa.str + pa.gun) - (pb.str + pb.gun);
+			int score = calScore(pa,pb);
 			loserAction(b);
 			winnerAction(a, score);
 		} else {
-			int score = (pb.str + pb.gun) - (pa.str + pa.gun);
+			int score = calScore(pa,pb);
 			loserAction(a);
 			winnerAction(b, score);
 		}
 
+	}
+	
+	public static int calScore(Player a, Player b) {
+		return Math.abs((a.str+a.gun)-(b.str+b.gun));
 	}
 
 	public static boolean whoWin(Player a, Player b) {
@@ -182,6 +193,11 @@ public class Main {
 			p.r = nr;
 			p.c = nc;
 		}
+		
+		//만약 해당 칸에 총이 있다면 총을 획득합니다.
+		if(!map[p.r][p.c].isEmpty()) {
+			pickTheGun(p.r,p.c,m);
+		}
 
 	}
 
@@ -222,16 +238,9 @@ public class Main {
 		}
 	}
 
-	public static void move(Player p) {
-		int nr = p.r + dr[p.d];
-		int nc = p.c + dc[p.d];
-
-		if (!inRange(nr, nc)) {
-			p.d = reverseDir(p.d);
-			nr = p.r + dr[p.d];
-			nc = p.c + dc[p.d];
-		}
-	}
+	
+	
+	//Utils
 
 	public static int rotateDir(int d) {
 		return (d + 1) % 4;
